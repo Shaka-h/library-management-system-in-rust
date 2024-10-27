@@ -10,7 +10,7 @@ pub struct Patron {
 }
 
 
-pub struct Borrowed_Books<'a> {  // Add a lifetime parameter to Authors
+pub struct BorrowedBooks<'a> {  // Add a lifetime parameter to Authors
     pub borrowed_books: Vec<&'a mut Book>,  // Use the same lifetime here
 }
 
@@ -26,9 +26,9 @@ impl Patron {
     }
 }
 
-impl Borrowed_Books {
+impl <'a>BorrowedBooks<'a> {
 
-    pub fn borrow_book (&mut self, book: &Book, patron: Patron){
+    pub fn borrow_book (&mut self, book: &Book, patron: &mut Patron){
         if book.status == BookStatus::CheckedOut {
             println!("Book not Available");
         }

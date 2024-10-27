@@ -3,7 +3,7 @@ use std::{ptr::null, sync::atomic::{AtomicUsize, Ordering}};
 use crate::patron::Patron;
 
 #[derive(Debug)]
-pub struct Book {
+pub struct Book<'a> {
     id: usize,
     pub name: String,
     pub author: String,
@@ -11,21 +11,22 @@ pub struct Book {
     pub copies: u32,
     pub votes: u32,
     pub status: BookStatus,
-    pub borrower: Patron
+    pub borrower: &'a mut Patron
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum BookStatus {
     Available,
     CheckedOut
 }
 
-pub struct Books_Collection<'a> {  // Add a lifetime parameter to Authors
-    pub book: Vec<&'a mut Book>,  // Use the same lifetime here
+pub struct BooksCollection<'a> {  // Add a lifetime parameter to Authors
+    pub book: Vec<&'a mut Book<'a>>,  // Use the same lifetime here
 }
 static BOOK_COUNTER: AtomicUsize = AtomicUsize::new(1);
 
-impl Book {
+impl <'a> Book <'a>{
     pub fn publish_book (name: String, author: String, year: u16, copies: u32, votes: u32) -> Book {
         Book {
             id: BOOK_COUNTER.fetch_add(1, Ordering::SeqCst),  // Get the next ID and increment the counter
@@ -38,13 +39,9 @@ impl Book {
             borrower: null()
         }
     }
-
-    pub fn like_book(&mut self) {
-        self.votes += 1;
-    }
 }
 
-impl<'a> Books_Collection<'a> {
+impl<'a> BooksCollection<'a> {
 
     pub fn add_book(&mut self, book:&'a mut Book) {
         self.book.push(book);
